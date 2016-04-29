@@ -36,7 +36,7 @@ if [[ $? -eq 0 ]]; then
     echo [INFO] Creating partitions on $SDCARD...
     (echo o; echo n; echo p; echo 1; echo; echo +100M; echo t; echo c; echo n; echo p; echo 2; echo; echo; echo w) | fdisk $SDCARD
     echo [INFO] Formating partitions... 
-    mkfs.vfat "$SDCARD0"p1
+    mkfs.vfat "$SDCARD"p1
     mkfs.ext4 -F "$SDCARD"p2
     
     RPI_BOOT_DIR='/tmp/raspberrypi/boot'
@@ -47,7 +47,7 @@ if [[ $? -eq 0 ]]; then
     mount "$SDCARD"p1 $RPI_BOOT_DIR
     mount "$SDCARD"p2 $RPI_ROOT_DIR
     
-    ALARM_URL=' http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz'
+    ALARM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz'
     echo "[INFO] Downloading latest version of ArchLinuxARM from $ALARM_URL"
     ALARM_PATH=/tmp/ArchLinuxARM-rpi-2-latest.tar.gz
     wget $ALARM_URL -O $ALARM_PATH
