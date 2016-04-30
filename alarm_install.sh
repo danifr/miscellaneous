@@ -2,6 +2,11 @@
 
 # Daniel Fernandez Rodriguez <gmail.com daferoes>
 
+if [[ $UID -ne 0 ]]; then
+  echo '[ERROR] You need to run this program as root or via sudo... Exiting'
+  exit 1
+fi
+
 echo '+***********************************************************+'
 echo '*                                                           *'
 echo '*  Welcome! This program will automate the installation of  *'
@@ -28,7 +33,7 @@ if [[ $? -eq 0 ]]; then
       echo '[INFO] Unmounting SD card...'
       umount $(echo "$mounted" | grep $SDCARD | awk '{print $3}')
       if [[ $? -ne 0 ]]; then
-        echo '[ERROR] Impossible to umount SD card...Exiting'
+        echo '[ERROR] Impossible to umount SD card... Exiting'
         exit 1
       fi
     fi
