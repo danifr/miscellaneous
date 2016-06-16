@@ -1,0 +1,9 @@
+[Unit]
+Description=Am I home?
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/systemd/scripts/amihome
+
+[Install]
+WantedBy=multi-user.target
