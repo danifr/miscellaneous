@@ -7,11 +7,18 @@
 # become reachable again.
 
 APP=motion
-KNOWN_IPS=(192.168.10.11)
+KNOWN_IPS=(192.168.10.XX 192.168.10.YY)
 
 PING_INTERVAL=1
 PING_PACKETS=5
 
+function is_on() {
+  POWER_STATUS=$(echo pow 0 | cec-client -s -d 1)
+  if [[ $POWER_STATUS == *"power status: standby"* ]]; then
+    #echo TV is OFF
+    return 1
+  fi
+}
 
 function ping_ip {
   #echo "Sending $1 $PING_PACKETS packets every "$PING_INTERVAL"s..."
@@ -61,6 +68,10 @@ while true
     else
       PING_INTERVAL=0.5
       PING_PACKETS=2
-      start_app $APP
+      # Comment out these lines if you want to use
+      # your CEC-HDMI capable TV as trusted device
+      #if ! is_on; then
+        start_app $APP
+      #fi
     fi
   done
