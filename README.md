@@ -25,3 +25,8 @@ After running it, you just need to insert the sdcard in you RaspberryPi and have
 Simplest script ever to keep your archlinux system up-to-date and tidy at the same time.
 
 Add it as scheduled systemd unit to run it automatically once per day or week.
+
+### [openafs_update.sh] (https://github.com/danifr/miscellaneous/blob/devel/openafs_update.sh)
+
+Bash script to fully automate installation and configuration of OpenAFS.
+Tested succesfully on Fedora 22, 23 and 24.
