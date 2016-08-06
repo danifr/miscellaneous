@@ -8,6 +8,7 @@
 
 APP=motion
 KNOWN_IPS=(192.168.10.XX 192.168.10.YY)
+MANUALLY_DISABLED='/tmp/iamhome'
 
 PING_INTERVAL=1
 PING_PACKETS=5
@@ -55,7 +56,8 @@ while true
     AMIHOME=false
     for IP in "${KNOWN_IPS[@]}"; do
       ping_ip $IP
-      if [ $? -eq 0 ]; then
+      PING_EXIT=$?
+      if [ -f $MANUALLY_DISABLED ] || [ $PING_EXIT -eq 0 ]; then
         AMIHOME=true
         #echo Founded one device with IP:$IP. Breaking loop
         break
@@ -68,10 +70,8 @@ while true
     else
       PING_INTERVAL=0.5
       PING_PACKETS=2
-      # Comment out these lines if you want to use
-      # your CEC-HDMI capable TV as trusted device
-      #if ! is_on; then
+      if ! is_on; then
         start_app $APP
-      #fi
+      fi
     fi
   done
