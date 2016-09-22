@@ -3,7 +3,7 @@
 # Daniel Fernandez Rodriguez <gmail.com daferoes>
 # https://github.com/danifr/miscellaneous
 #
-# This script will download, build and update OpenAFS
+# This script will download, build and install/update OpenAFS
 #
 #
 # Usage: sh openafs_update.sh $OPENAFS_RELEASE
@@ -12,18 +12,28 @@
 
 OPENAFS_RELEASE=$1
 WORKING_DIR='/tmp'
+EPEL_RPM='http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm'
 
 if [[ $UID -ne 0 ]]; then
   echo '[ERROR] You need to run this program as root... Exiting'
   exit 1
 fi
 
-echo -n "Do you want to install all dependencies? (Y/n) "
+echo "[INFO] Changing working directory to $WORKING_DIR..."
+cd $WORKING_DIR
+
+echo -n "Do you want to install all dependencies? [recommended] (Y/n) "
 read COMPLETE
 
 if [[ ${COMPLETE,,} == 'y' ]]; then
-  echo "[INFO] Installing dependencies..."
 
+  if [[ $(cat /etc/system-release) == *CentOS* ]]; then
+    echo "[INFO] Enabling EPEL Repository..."
+    wget $EPEL_RPM > /dev/null
+    rpm -ivh epel-release-7-8.noarch.rpm
+  fi
+
+  echo "[INFO] Installing dependencies..."
   yum install -y rpm-build bison flex kernel-devel kernel-devel-x86_64 \
   krb5-devel ncurses-devel pam-devel perl-ExtUtils-Embed perl-devel wget
 
@@ -34,9 +44,6 @@ if [[ ${COMPLETE,,} == 'y' ]]; then
   wget http://linux.web.cern.ch/linux/docs/krb5.conf -O /etc/krb5.conf
   echo "[INFO] Everything seems OK. Let's start with the OpenAFS upgrade..."
 fi
-
-echo "[INFO] Changing working directory to $WORKING_DIR..."
-cd $WORKING_DIR
 
 echo "[INFO] Downloading openafs-$OPENAFS_RELEASE..."
 if [[ $OPENAFS_RELEASE != *pre* ]]; then
@@ -69,14 +76,8 @@ KERNEL_VERSION=${KERNEL_VERSION//-/_}
 
 echo [INFO] Installing OpenAFS v$OPENAFS_RELEASE for kernel $KERNEL_VERSION ARCH $ARCH
 
-yum install -y dkms-openafs-$OPENAFS_RELEASE.$ARCH.rpm \
-kmod-openafs-$OPENAFS_RELEASE.$KERNEL_VERSION.$ARCH.rpm \
-openafs-$OPENAFS_RELEASE.$ARCH.rpm openafs-authlibs-$OPENAFS_RELEASE.$ARCH.rpm \
-openafs-authlibs-devel-$OPENAFS_RELEASE.$ARCH.rpm \
-openafs-client-$OPENAFS_RELEASE.$ARCH.rpm openafs-compat-$OPENAFS_RELEASE.$ARCH.rpm \
-openafs-debuginfo-$OPENAFS_RELEASE.$ARCH.rpm openafs-devel-$OPENAFS_RELEASE.$ARCH.rpm \
-openafs-docs-$OPENAFS_RELEASE.$ARCH.rpm openafs-kernel-source-$OPENAFS_RELEASE.$ARCH.rpm \
-openafs-krb5-$OPENAFS_RELEASE.$ARCH.rpm
+rm -f openafs-kpasswd-* openafs-server*
+yum install -y *.rpm
 
 THISCELL_DIR='/usr/vice/etc/'
 echo "[INFO] Creating $THISCELL_DIR directory..."
