@@ -3,8 +3,9 @@
   BUGS, COMMENTS, SUGGESTIONS, PLEASE OPEN AN ISSUE --> https://github.com/danifr/miscellaneous/issues
 **********************************************************************************************************
 ```
-
-I wrote a small script to automate all this process, you can find it here: https://github.com/danifr/miscellaneous/blob/devel/CERN_OpenAFS/openafs_update.sh
+```
+RECOMMENDED: script to automate all this process: https://github.com/danifr/miscellaneous/blob/devel/CERN_OpenAFS/openafs_update.sh
+```
 
 **********************************************************************************************************
 
