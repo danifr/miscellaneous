@@ -35,7 +35,8 @@ if [[ ${COMPLETE,,} == 'y' ]]; then
 
   echo "[INFO] Installing dependencies..."
   yum install -y rpm-build bison flex kernel-devel kernel-devel-x86_64 \
-  krb5-devel ncurses-devel pam-devel perl-ExtUtils-Embed perl-devel wget
+  krb5-devel ncurses-devel pam-devel perl-ExtUtils-Embed perl-devel \
+  wget swig
 
   yum groupinstall -y 'Development Tools'
   yum install -y krb5-workstation
