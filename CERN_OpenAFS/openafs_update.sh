@@ -12,7 +12,7 @@
 
 OPENAFS_RELEASE=$1
 WORKING_DIR='/tmp'
-EPEL_RPM='http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm'
+EPEL_RPM='http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
 
 if [[ $UID -ne 0 ]]; then
   echo '[ERROR] You need to run this program as root... Exiting'
