@@ -7,16 +7,40 @@
 #
 #
 # Usage: sh openafs_update.sh $OPENAFS_RELEASE
-#    Ex: sh openafs_update.sh 1.6.18.2
+#    Ex: sh openafs_update.sh 1.8.3
 #
 
 OPENAFS_RELEASE=$1
 WORKING_DIR='/tmp'
 EPEL_RPM='http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
+OPENAFS_LATEST_URL="https://www.openafs.org/pages/release/latest.html"
+OPENAFS_ALL_URL="https://www.openafs.org/dl/openafs/"
 
 if [[ $UID -ne 0 ]]; then
   echo '[ERROR] You need to run this program as root... Exiting'
   exit 1
+fi
+
+if [[ -z $OPENAFS_RELEASE ]]; then
+  echo "[WARN] Please specify the version you want to install. ex: ./openafs_update.sh 1.8.3"
+  echo "[INFO] Check all available releases --> $OPENAFS_ALL_URL"
+  echo ""
+
+  echo "[INFO] ~~ Let's try some curl + grep magic! ~~"
+  echo "[INFO] Getting latest stable release number from $OPENAFS_LATEST_URL..."
+  OPENAFS_LATEST=$(curl -s $OPENAFS_LATEST_URL | grep -o -P '(?<=<title>OpenAFS ).*(?=</title>)')
+  echo "Do you want to build and install release v$OPENAFS_LATEST? (Y/n) "
+  read GO_LATEST
+  if [[ ${GO_LATEST,,} == 'y' ]]; then
+    OPENAFS_RELEASE=$OPENAFS_LATEST
+  else
+    echo "Do you want to specifying the release number to build? (ex: 1.8.3 or ENTER to skip) "
+    read OPENAFS_RELEASE
+    if [[ -z $OPENAFS_RELEASE ]]; then
+      echo "[ERROR] OpenAFS release numeber not provided. Exiting."
+      exit 1
+    fi
+  fi
 fi
 
 echo "[INFO] Changing working directory to $WORKING_DIR..."
