@@ -3,13 +3,12 @@
   BUGS, COMMENTS, SUGGESTIONS, PLEASE OPEN AN ISSUE --> https://github.com/danifr/miscellaneous/issues
 **********************************************************************************************************
 ```
-```
-RECOMMENDED: script to automate all this process: https://github.com/danifr/miscellaneous/blob/devel/CERN_OpenAFS/openafs_update.sh
-```
 
-**********************************************************************************************************
+# ⚠️ This manual process might not work with newer versions of OpenAFS ⚠️
 
-# Install and configure CERN OpenAFS on Fedora 20/21/22 Centos 7/7.1 and RHEL
+👌 Please use the updated script instead https://github.com/danifr/miscellaneous/blob/devel/CERN_OpenAFS/openafs_update.sh
+
+# Install and configure CERN OpenAFS on Fedora 30, Centos 7/7.X and RHEL7
 
 ## Prerequisites
 
