@@ -39,7 +39,7 @@ if [[ $? -eq 0 ]]; then
     fi
 
     echo [INFO] Creating partitions on $SDCARD...
-    (echo o; echo n; echo p; echo 1; echo; echo +100M; echo t; echo c; echo n; echo p; echo 2; echo; echo; echo w) | fdisk $SDCARD
+    (echo o; echo n; echo p; echo 1; echo; echo +200M; echo t; echo c; echo n; echo p; echo 2; echo; echo; echo w) | fdisk $SDCARD
     echo [INFO] Formating partitions... 
     mkfs.vfat "$SDCARD"p1
     mkfs.ext4 -F "$SDCARD"p2
