@@ -55,7 +55,7 @@ if [[ $? -eq 0 ]]; then
     ALARM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz'
     echo "[INFO] Downloading latest version of ArchLinuxARM from $ALARM_URL"
     ALARM_PATH=/tmp/ArchLinuxARM-rpi-2-latest.tar.gz
-    wget $ALARM_URL -O $ALARM_PATH
+    curl -L --output $ALARM_PATH $ALARM_URL
     
     echo "[INFO] Extracting files into $RPI_ROOT_DIR..."
     bsdtar -xpf $ALARM_PATH -C $RPI_ROOT_DIR
