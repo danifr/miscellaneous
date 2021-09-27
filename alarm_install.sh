@@ -1,6 +1,24 @@
 #!/bin/bash
 
-# Daniel Fernandez Rodriguez <gmail.com daferoes>
+## Daniel Fernandez Rodriguez <gmail.com daferoes>
+
+ALARM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz'
+ALARM_CHECKSUM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz.md5'
+
+verify_checksum() {
+    ALARM_PATH=$1
+    REMOTE_ALARM_CHECKSUM=$(curl -L $ALARM_CHECKSUM_URL | cut -f1 -d ' ' | xargs)
+    LOCAL_ALARM_CHECKSUM=$(md5sum $ALARM_PATH | cut -f1 -d ' ' | xargs)
+    echo [INFO] Verifying $ALARM_PATH checksum...
+    if [[ $REMOTE_ALARM_CHECKSUM == $LOCAL_ALARM_CHECKSUM ]]; then
+      echo [INFO] Checksum successfully verified!
+      return true
+    else
+      echo '[ERROR] Checksum does not match... Exiting'
+      return false
+    fi
+}
+
 
 if [[ $UID -ne 0 ]]; then
   echo '[ERROR] You need to run this program as root or via sudo... Exiting'
@@ -52,11 +70,23 @@ if [[ $? -eq 0 ]]; then
     mount "$SDCARD"p1 $RPI_BOOT_DIR
     mount "$SDCARD"p2 $RPI_ROOT_DIR
     
-    ALARM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz'
-    echo "[INFO] Downloading latest version of ArchLinuxARM from $ALARM_URL"
-    ALARM_PATH=/tmp/ArchLinuxARM-rpi-2-latest.tar.gz
-    curl -L --output $ALARM_PATH $ALARM_URL
-    
+    read -r -p "Enter where to store ArchLinuxARM release [/tmp/ArchLinuxARM-rpi-2-latest.tar.gz]: " ALARM_PATH
+    if [[ -f "$ALARM_PATH" ]]; then
+      ALARM_PATH=/tmp/ArchLinuxARM-rpi-2-latest.tar.gz
+    fi
+
+    if [[ -f "$ALARM_PATH" ]]; then
+      verify_checksum $ALARM_PATH
+      if [[ ! $? ]]; then
+        echo "[INFO] Downloading latest version of ArchLinuxARM from $ALARM_URL"
+        curl -L --output $ALARM_PATH $ALARM_URL
+
+    if [[ verify_checksum $ALARM_PATH ]]; then
+        exit 1
+      fi
+    fi
+
+
     echo "[INFO] Extracting files into $RPI_ROOT_DIR..."
     bsdtar -xpf $ALARM_PATH -C $RPI_ROOT_DIR
     echo '[INFO] Syncing... (this might take a while)'
