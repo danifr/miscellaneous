@@ -2,8 +2,8 @@
 
 ## Daniel Fernandez Rodriguez <gmail.com daferoes>
 
-ALARM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz'
-ALARM_CHECKSUM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz.md5'
+ALARM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz'
+ALARM_CHECKSUM_URL='http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz.md5'
 
 verify_checksum() {
     ALARM_PATH=$1
