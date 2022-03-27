@@ -103,6 +103,19 @@ if [[ $? -eq 0 ]]; then
     rm -rf $RPI_BOOT_DIR
     rm -rf $RPI_ROOT_DIR
     echo "[INFO] Everything looks good! Insert the sdcard in you RaspberryPi and have fun!"
+    echo "
+Use the serial console or SSH to the IP address given to the board by your router.
+
+    Login as the default user alarm with the password alarm.
+    The default root password is root.
+
+Initialize the pacman keyring and populate the Arch Linux ARM package signing keys:
+
+pacman-key --init
+pacman-key --populate archlinuxarm
+
+
+"
 
   else
     echo "[INFO] Exiting. Have a good day!"
