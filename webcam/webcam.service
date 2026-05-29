@@ -1,0 +1,12 @@
+[Unit]
+Description=Webcam streaming server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/bin/webcam.py
+Restart=always
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
