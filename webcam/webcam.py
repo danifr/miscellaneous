@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from datetime import datetime
 import functools
 import logging
 import socketserver
@@ -9,20 +10,35 @@ from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import Output
 
 WIDTH, HEIGHT = 1280, 720  # Common resolutions: 640x480, 1280x720 (720p), 1920x1080 (1080p)
+FPS = 10  # Reduce if CPU usage is too high
 PORT = 8888
 
 # HTML page served at the root
-PAGE = f"""\
+PAGE = """\
 <html>
 <head>
+<meta charset="utf-8">
 <title>Raspberry Pi Streaming</title>
 </head>
 <body style="background-color: #111; color: #eee; text-align: center; font-family: sans-serif;">
 <h1>Live Streaming</h1>
-<img src="stream.mjpg" width="{WIDTH}" height="{HEIGHT}" style="border: 3px solid #333; border-radius: 8px;" />
+<img src="stream.mjpg" width="WIDTH_VAL" height="HEIGHT_VAL" style="border: 3px solid #333; border-radius: 8px;" />
+<p style="margin-top: 10px; font-size: 0.9em; color: #aaa;">CPU temp: <span id="temp">--</span> &nbsp;|&nbsp; <span id="time">--</span></p>
+<script>
+  function updateTemp() {
+    fetch('/temp').then(function(r) { return r.text(); }).then(function(t) { document.getElementById('temp').innerHTML = t; });
+  }
+  function updateTime() {
+    fetch('/time').then(function(r) { return r.text(); }).then(function(t) { document.getElementById('time').innerText = t; });
+  }
+  updateTemp();
+  updateTime();
+  setInterval(updateTemp, 10000);
+  setInterval(updateTime, 1000);
+</script>
 </body>
 </html>
-"""
+""".replace('WIDTH_VAL', str(WIDTH)).replace('HEIGHT_VAL', str(HEIGHT))
 
 class StreamingOutput(Output):
     def __init__(self):
@@ -51,6 +67,22 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             content = PAGE.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == '/temp':
+            with open('/sys/class/thermal/thermal_zone0/temp') as f:
+                temp = round(int(f.read()) / 1000, 1)
+            content = f'{temp}&deg;C'.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/plain')
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == '/time':
+            content = datetime.now().strftime('%d-%m-%Y %H:%M:%S').encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/plain')
             self.send_header('Content-Length', len(content))
             self.end_headers()
             self.wfile.write(content)
@@ -84,7 +116,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 # Initialize and configure the camera
 picam2 = Picamera2()
-config = picam2.create_video_configuration(main={"size": (WIDTH, HEIGHT)})
+config = picam2.create_video_configuration(main={"size": (WIDTH, HEIGHT)}, controls={"FrameRate": FPS})
 picam2.configure(config)
 output = StreamingOutput()
 
