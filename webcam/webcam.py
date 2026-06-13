@@ -22,7 +22,7 @@ PAGE = """\
 </head>
 <body style="background-color: #111; color: #eee; text-align: center; font-family: sans-serif;">
 <h1>Live Streaming</h1>
-<img src="stream.mjpg" width="WIDTH_VAL" height="HEIGHT_VAL" style="border: 3px solid #333; border-radius: 8px;" />
+<img src="stream.mjpg" style="max-width: 100%; border: 3px solid #333; border-radius: 8px;" />
 <p style="margin-top: 10px; font-size: 0.9em; color: #aaa;">CPU temp: <span id="temp">--</span> &nbsp;|&nbsp; <span id="time">--</span></p>
 <script>
   function updateTemp() {
@@ -38,7 +38,7 @@ PAGE = """\
 </script>
 </body>
 </html>
-""".replace('WIDTH_VAL', str(WIDTH)).replace('HEIGHT_VAL', str(HEIGHT))
+"""
 
 class StreamingOutput(Output):
     def __init__(self):
