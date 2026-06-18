@@ -36,7 +36,7 @@ PAGE_BYTES = b"""\
 <div id="stream-container">
   <video id="video" autoplay muted playsinline></video>
   <canvas id="canvas" style="display:none;"></canvas>
-  <img id="stream" src="stream.mjpg" style="display:none;" />
+  <img id="stream" style="display:none;" />
   <button id="fs-btn" title="Toggle fullscreen">&#x26F6;</button>
 </div>
 <p style="margin-top: 10px; font-size: 0.9em; color: #aaa;">CPU temp: <span id="temp">--</span> &nbsp;|&nbsp; <span id="time">--</span></p>
@@ -46,6 +46,9 @@ PAGE_BYTES = b"""\
   var img = document.getElementById('stream');
   var ctx = canvas.getContext('2d');
   var drawLoop = null;
+
+  // Start loading the stream after page renders
+  img.src = 'stream.mjpg';
 
   // Set canvas size once image loads
   img.onload = function() {
@@ -216,7 +219,7 @@ output = StreamingOutput()
 
 try:
     # Start recording using hardware MJPEG encoding with high quality (GPU-based, no CPU cost)
-    picam2.start_recording(MJPEGEncoder(), FileOutput(output), quality=Quality.HIGH)
+    picam2.start_recording(MJPEGEncoder(), FileOutput(output), quality=Quality.MEDIUM)
     # Listen on all network interfaces
     address = ('', PORT)
     handler = functools.partial(StreamingHandler, output)
