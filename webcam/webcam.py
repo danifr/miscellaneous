@@ -29,71 +29,36 @@ PAGE_BYTES = b"""\
 <body style="background-color: #111; color: #eee; text-align: center; font-family: sans-serif; margin: 0; padding: 10px; box-sizing: border-box;">
 <style>
   #stream-container { position: relative; display: inline-block; max-width: 100%; }
-  #video { max-width: 100%; max-height: calc(100vh - 100px); border: 3px solid #333; border-radius: 8px; display: block; width: auto; height: auto; background: #000; }
+  #stream { max-width: 100%; max-height: calc(100vh - 100px); border: 3px solid #333; border-radius: 8px; width: auto; height: auto; background: #000; }
   #fs-btn { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.6); border: none; color: #fff; font-size: 1.6em; padding: 8px 12px; border-radius: 6px; cursor: pointer; line-height: 1; z-index: 10; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .fullscreen { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; display: flex !important; align-items: center; justify-content: center; background: #000; z-index: 9999; border: none; border-radius: 0; }
+  .fullscreen #stream { max-width: 100vw; max-height: 100vh; border: none; border-radius: 0; object-fit: contain; }
 </style>
 <h1>Live Streaming</h1>
 <div id="stream-container">
-  <video id="video" autoplay muted playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
   <img id="stream" style="display:none;" />
   <button id="fs-btn" title="Toggle fullscreen">&#x26F6;</button>
 </div>
 <p style="margin-top: 10px; font-size: 0.9em; color: #aaa;">CPU temp: <span id="temp">--</span> &nbsp;|&nbsp; <span id="time">--</span></p>
 <script>
-  var video = document.getElementById('video');
-  var canvas = document.getElementById('canvas');
   var img = document.getElementById('stream');
-  var ctx = canvas.getContext('2d');
-  var drawLoop = null;
 
   // Start loading the stream after page renders
   img.src = 'stream.mjpg';
-
-  // Set canvas size once image loads
-  img.onload = function() {
-    if (canvas.width !== img.naturalWidth || canvas.height !== img.naturalHeight) {
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-    }
-    if (!drawLoop) startDrawLoop();
+  img.onload = function() { img.style.display = 'block'; };
+  img.onerror = function() {
+    setTimeout(function() { img.src = 'stream.mjpg?' + Date.now(); }, 2000);
   };
 
-  function startDrawLoop() {
-    var stream = canvas.captureStream(0);
-    video.srcObject = stream;
-    video.play().catch(function(){});
-    var track = stream.getVideoTracks()[0];
-
-    function draw() {
-      if (img.naturalWidth > 0) {
-        ctx.drawImage(img, 0, 0);
-        if (track && track.requestFrame) track.requestFrame();
-      }
-      drawLoop = requestAnimationFrame(draw);
-    }
-    draw();
-  }
-
-  function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
-
+  var container = document.getElementById('stream-container');
   function toggleFullscreen() {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    } else if (isIOS() && video.webkitEnterFullscreen) {
-      video.webkitEnterFullscreen();
-    } else if (video.requestFullscreen) {
-      video.requestFullscreen();
-    } else if (video.webkitRequestFullscreen) {
-      video.webkitRequestFullscreen();
-    }
+    container.classList.toggle('fullscreen');
   }
-
   document.getElementById('fs-btn').addEventListener('click', toggleFullscreen);
-  video.addEventListener('dblclick', toggleFullscreen);
+  img.addEventListener('dblclick', toggleFullscreen);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') container.classList.remove('fullscreen');
+  });
 
   function updateStatus() {
     fetch('/status').then(function(r) { return r.json(); }).then(function(d) {
@@ -179,8 +144,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             try:
                 while True:
                     with self.output.condition:
-                        self.output.condition.wait()
+                        if not self.output.condition.wait(timeout=5):
+                            continue  # No frame within timeout, retry
                         frame = self.output.frame
+                    if frame is None:
+                        continue
                     self.wfile.write(b'--FRAME\r\n')
                     self.send_header('Content-Type', 'image/jpeg')
                     self.send_header('Content-Length', len(frame))
